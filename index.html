@@ -237,6 +237,32 @@
       line-height: 1.5;
     }
 
+    .history-summary {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .summary-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    .summary-stats {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    .summary-avg {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
     .no-history {
       text-align: center;
       color: #666;
@@ -454,22 +480,43 @@ function closeSandModal() {
 // History
 function showHistoryModal() {
   const data = getData();
-  const days = Object.keys(data).sort().reverse().slice(0, 14);
+  const days = Object.keys(data).sort().reverse().slice(0, 30);
   const container = document.getElementById('historyList');
 
   if (days.length === 0) {
     container.innerHTML = '<div class="no-history">No data yet</div>';
   } else {
-    container.innerHTML = days.map(day => {
+    // 30-day summary
+    let sumK = 0, sumL = 0, sumB = 0;
+    days.forEach(day => {
+      const d = data[day];
+      sumK += d.kitchen || 0;
+      sumL += d.living || 0;
+      sumB += d.bathroom || 0;
+    });
+    const sumTotal = sumK + sumL + sumB;
+    const avgPerDay = days.length > 0 ? (sumTotal / days.length).toFixed(1) : 0;
+
+    let html = `<div class="history-summary">
+      <div class="summary-title">Last ${days.length} day${days.length > 1 ? 's' : ''}</div>
+      <div class="summary-stats">
+        🍳 ${sumK} · 🛋️ ${sumL} · 🚿 ${sumB} · Total: ${sumTotal}
+      </div>
+      <div class="summary-avg">${avgPerDay} avg/day</div>
+    </div>`;
+
+    html += days.map(day => {
       const d = data[day];
       const total = (d.kitchen || 0) + (d.living || 0) + (d.bathroom || 0);
       return `<div class="history-day">
         <div class="history-date">${formatDate(day)} ${day === todayKey() ? '(Today)' : ''}</div>
         <div class="history-counts">
-          🍳 Kitchen: ${d.kitchen || 0} · 🛋️ Living: ${d.living || 0} · 🚿 Bathroom: ${d.bathroom || 0} · Total: ${total}
+          🍳 ${d.kitchen || 0} · 🛋️ ${d.living || 0} · 🚿 ${d.bathroom || 0} · Total: ${total}
         </div>
       </div>`;
     }).join('');
+
+    container.innerHTML = html;
   }
   document.getElementById('historyModal').classList.add('active');
 }
