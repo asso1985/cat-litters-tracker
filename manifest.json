@@ -2,7 +2,7 @@
   "name": "Cat Litter Tracker",
   "short_name": "Litter",
   "description": "Track cat litter usage and sand change reminders",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
